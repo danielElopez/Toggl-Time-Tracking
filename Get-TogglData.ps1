@@ -1,7 +1,7 @@
 ﻿Clear-Host
 
 # Load data from the file; it should contain data of the format
-# apitoken,lkahfg893hr3o8haf387yf3a9y3fa3rf,workspaceid,123679
+# apitoken,laksjdhflaksjdhfaskljdfhalskdjfhalksdjfhalskdjfhaslkdf,workspaceid,123679
 $PATH_TO_TOGGL_INFO_FILE = "D:\Users\dlopez\Documents\GitHub\Toggl-Time-Tracking\toggl_info.txt"
 
 # Read content from the file
@@ -19,8 +19,8 @@ $webRequestHeaders = @{
 $TOGGL_WORKSPACE_ID = $togglInfoFileContentsArray[3]
 
 # Get the start and end time
-$endDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1)
-$startDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1 -Month 2)
+$endDate   = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1)
+$startDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-1)
 Write-Host "Start and end time:" $startDate $endDate
 
 # Count number of weekdays in this range
@@ -54,8 +54,9 @@ $table = New-Object system.Data.DataTable “$tableName”
 
 #Define Columns
 $col1 = New-Object system.Data.DataColumn 'Service activity',([string])
-$col2 = New-Object system.Data.DataColumn 'Raw duration in milliseconds',([int])
-$col3 = New-Object system.Data.DataColumn 'Duration in workdays',([single])
+$col2 = New-Object system.Data.DataColumn 'Duration in workdays',([single])
+$col3 = New-Object system.Data.DataColumn 'Raw duration in milliseconds',([int])
+
 
 #Add the Columns
 $table.columns.add($col1)
@@ -69,18 +70,18 @@ ForEach ($project In $responseJSON.data) {
 
     #Enter data in the row
     $row.'Service activity' = $project.title.project
-    $row.'Raw duration in milliseconds' = $project.time 
     $row.'Duration in workdays' = [math]::Round($project.time / 1000 / 60 / 60 / 8, 2)
+    $row.'Raw duration in milliseconds' = $project.time 
+    
 
     #Add the row to the table
     $table.Rows.Add($row)
 }
 
 #Display the table
-Write-Host 'Results:'
-Write-Host ''
-Write-Host $tableName
+$utilizationText = "Total time in workdays: " + ([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8, 2)) + " out of " + $numberOfWeekdays + " (" + (100*([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8 / $numberOfWeekdays,2))) + "%)"
+Write-Host ""
+Write-Host ($tableName + " | " + $utilizationText)
 $table | format-table -AutoSize 
-#$table | Out-GridView -PassThru
+$table | Out-GridView -PassThru -Title ($tableName + " | " + $utilizationText)
 
-Write-Host "Total time in workdays:" ([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8, 2)) "out of" $numberOfWeekdays "("(100*([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8 / $numberOfWeekdays,2)))"% )"
