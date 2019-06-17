@@ -19,17 +19,21 @@ $webRequestHeaders = @{
 $TOGGL_WORKSPACE_ID = $togglInfoFileContentsArray[3]
 
 # Get the start and end time
-$endDate   = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1)
+$endDate   = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(0)
 $startDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-1)
+
+#$endDate   = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-1)
+#$startDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-2)
+
 Write-Host "Start and end time:" $startDate $endDate
 
 # Count number of weekdays in this range
-$numberOfWeekdays = 0
+$totalPossibleNumberOfWorkdays = 0
 # Test every date between start and end to see if it is a weekend
 for ($d = $startDate; $d -le $endDate; $d = $d.AddDays(1)){
     if ($d.DayOfWeek -notmatch "Sunday|Saturday") {
         # If the day of the week is not a Saturday or Sunday, increment the counter
-        $numberOfWeekdays++    
+        $totalPossibleNumberOfWorkdays++    
     }
     else {
         # Verify these are weekend days
@@ -78,8 +82,16 @@ ForEach ($project In $responseJSON.data) {
     $table.Rows.Add($row)
 }
 
+# Allow the user to input the number of days off that they took off
+$numberOfDaysTakenOffThatMonth = 0
+$numberOfDaysTakenOffThatMonth = (Read-host -Prompt "Enter in the number of days off you took this past month")
+$totalPossibleNumberOfWorkdays = $totalPossibleNumberOfWorkdays - $numberOfDaysTakenOffThatMonth
+
+# Calculate the total time in workdays
+$workTimeInWorkdays = ([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8, 2))
+
 #Display the table
-$utilizationText = "Total time in workdays: " + ([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8, 2)) + " out of " + $numberOfWeekdays + " (" + (100*([math]::Round($responseJSON.total_grand / 1000 / 60 / 60 / 8 / $numberOfWeekdays,2))) + "%)"
+$utilizationText = "Total time in workdays: " + $workTimeInWorkdays + " out of " + $totalPossibleNumberOfWorkdays + " (" + (100 * [math]::Round($workTimeInWorkdays / $totalPossibleNumberOfWorkdays, 2)) + "%)"
 Write-Host ""
 Write-Host ($tableName + " | " + $utilizationText)
 $table | format-table -AutoSize 
