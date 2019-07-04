@@ -1,13 +1,13 @@
-//javascript:
+javascript:
 (
     function () {
         console.log("Running bookmarklet...");
         /* Set the initial status to "scheduled" */
         document.getElementsByClassName('select')[0].click();
         document.getElementsByClassName('select')[0].click();
-        document.getElementsByClassName('select')[0].value = "Scheduled";
-        document.getElementsByClassName('select')[0].innerHTML = "Scheduled";
-        var desiredSchedulingStatusElement = document.getElementsByClassName('uiMenuItem uiRadioMenuItem')[2];
+        document.getElementsByClassName('select')[0].value = "None";
+        document.getElementsByClassName('select')[0].innerHTML = "None";
+        var desiredSchedulingStatusElement = document.getElementsByClassName('uiMenuItem uiRadioMenuItem')[1];
         desiredSchedulingStatusElement.firstElementChild.click();
         /* Get all inputs, then loop through them */
         var inputs = document.getElementsByClassName(" input");
