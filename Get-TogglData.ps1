@@ -18,9 +18,17 @@ $webRequestHeaders = @{
 # Specify the workspace
 $TOGGL_WORKSPACE_ID = $togglInfoFileContentsArray[3]
 
+# Allow the user to skip ahead one month
+$userInput = (Read-host -Prompt "Enter 'y' to skip ahead to the current month, not the past month")
+
 # Get the start and end time
 $endDate   = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(0)
 $startDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-1)
+
+if ($userInput -eq "y") {
+    $endDate = $endDate.AddMonths(1)
+    $startDate = $startDate.AddMonths(1)
+}
 
 #$endDate   = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-1)
 #$startDate = (Get-Date (Get-Date -Format "MM/dd/yyyy") -Day 1).AddMonths(-2)
