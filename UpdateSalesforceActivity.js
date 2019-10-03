@@ -45,5 +45,16 @@ javascript:
                 numberOfDateInputsFound = numberOfDateInputsFound + 1;
             }
         }
+        /* Also open each calendar */
+        var openCalendarButtons = document.getElementsByClassName('datePicker-openIcon display');
+        for (var j = 0; j < openCalendarButtons.length; j++) {
+            /* Click to open the calendar */
+            openCalendarButtons[j].click();
+            console.log("Opening calendar...");
+            var selectedDate = document.getElementsByClassName("slds-day selectedDate DESKTOP uiDayInMonthCell--default")[0];
+            /* Click the first date of the month */
+            console.log("Clicking the first of the month button...");
+            selectedDate.click();
+        }
     }
 )();
