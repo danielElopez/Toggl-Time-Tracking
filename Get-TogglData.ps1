@@ -2,7 +2,7 @@
 
 # Load data from the file; it should contain data of the format
 # apitoken,laksjdhflaksjdhfaskljdfhalskdjfhalksdjfhalskdjfhaslkdf,workspaceid,123679
-$PATH_TO_TOGGL_INFO_FILE = "D:\Users\dlopez\Documents\GitHub\Toggl-Time-Tracking\toggl_info.txt"
+$PATH_TO_TOGGL_INFO_FILE = "D:\Users\dlopez\Documents\GitHub\danielElopez\Toggl-Time-Tracking\toggl_info.txt"
 
 # Read content from the file
 $togglInfoFileContents = Get-Content -Path $PATH_TO_TOGGL_INFO_FILE -ErrorAction Stop

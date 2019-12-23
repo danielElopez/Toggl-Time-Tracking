@@ -1,7 +1,12 @@
-javascript:
-(
+javascript: (
     function () {
+        var APPLY_TO_CURRENT_MONTH = false;
         console.log("Running bookmarklet...");
+        /* If applying to current month, add a month offset of -1 to each month */
+        var monthOffset = 0;
+        if (APPLY_TO_CURRENT_MONTH) {
+            monthOffset = 1;
+        }
         /* Set the initial status to "scheduled" */
         document.getElementsByClassName('select')[0].click();
         document.getElementsByClassName('select')[0].click();
@@ -30,11 +35,11 @@ javascript:
                 console.log("So far, " + numberOfDateInputsFound + " date inputs have been found");
                 /* If the number of date inputs found is 0 or 1, this is one of the first two, and set it to the first day of the prior month */
                 var newInputValue = ""; if (numberOfDateInputsFound <= 1) {
-                    newInputValue = (currentMonth - 1) + "/1/" + currentYear;
+                    newInputValue = (currentMonth - 1 - monthOffset) + "/1/" + currentYear;
                     console.log("Setting a start date to " + newInputValue);
                 } else {
                     /* Otherwise, set the value to the first day of the current month */
-                    newInputValue = (currentMonth) + "/1/" + currentYear;
+                    newInputValue = (currentMonth - monthOffset) + "/1/" + currentYear;
                     console.log("Setting an end date to " + newInputValue);
                 }
                 /* Write this new input value to the input */
