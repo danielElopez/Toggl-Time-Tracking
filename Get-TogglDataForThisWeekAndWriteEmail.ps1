@@ -19,15 +19,20 @@ $webRequestHeaders = @{
 $TOGGL_WORKSPACE_ID = $togglInfoFileContentsArray[3]
 
 # Allow the user to skip ahead one month
-$userInput = (Read-host -Prompt "Enter 'y' to send an email for the past week, not the current week")
+$userInput = ""
+$userInput = (Read-host -Prompt "Enter 0 (or press ENTER) to report on the current week, or enter 1 to report on 1 week ago, 2 to report on 2 weeks ago, etc.")
 
-# Get the start and end time
-$endDate   = (Get-Date)
+# Get the start and end time; initialize them to the start of this week and now
 $startDate = (Get-Date -Hour 0 -Minute 00 -Second 00).AddDays(-1 * (Get-Date).DayOfWeek.value__)
+$endDate = Get-Date
 
-if ($userInput -eq "y") {
-    $endDate = $startDate
-    $startDate = $endDate.AddDays(-7)
+if (($userInput -eq "0") -or ($userInput -eq "") -or ($userInput -eq $null)) {
+    Write-Host "Reporting on this week!"
+} else {
+    $numberOfWeeks = [int]$userInput
+    Write-Host "Reporting on" $numberOfWeeks "week ago..."
+    $startDate = $startDate.AddDays(-7 * $numberOfWeeks)
+    $endDate = $startDate.AddDays(7)
 }
 
 Write-Host "Start and end time:" $startDate $endDate
@@ -73,7 +78,7 @@ $myChart.BackColor = [System.Drawing.Color]::White
 
 # Title
 $myChartTitle = New-Object System.Windows.Forms.DataVisualization.Charting.Title
-$myChartTitle.Text = "Weekly Time Report - " + $startDate + " until " + $endDate
+$myChartTitle.Text = "Weekly Time Report - " + $startDate.ToString("yyyy-MM-dd") + " until " + $endDate.ToString("yyyy-MM-dd")
 $myChartTitle.Font = New-Object System.Drawing.Font @('Microsoft Sans Serif','12', [System.Drawing.FontStyle]::Bold)
 $myChart.Titles.Add($myChartTitle)
 
