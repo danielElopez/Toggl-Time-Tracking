@@ -20,15 +20,16 @@ $TOGGL_WORKSPACE_ID = $togglInfoFileContentsArray[3]
 
 # Allow the user to skip ahead one month
 $userInput = ""
-$userInput = (Read-host -Prompt "Enter 0 (or press ENTER) to report on the current week, or enter 1 to report on 1 week ago, 2 to report on 2 weeks ago, etc.")
+$userInput = (Read-host -Prompt "Enter 0 (or press ENTER) to report on the current week.`nEnter 1 to report on 1 week ago, 2 to report on 2 weeks ago, etc.")
 
 # Get the start and end time; initialize them to the start of this week and now
 $startDate = (Get-Date -Hour 0 -Minute 00 -Second 00).AddDays(-1 * (Get-Date).DayOfWeek.value__)
 $endDate = Get-Date
 
-if (($userInput -eq "0") -or ($userInput -eq "") -or ($userInput -eq $null)) {
+if (($userInput -eq "0") -or ($userInput -eq "") -or ($null -eq $userInput)) {
     Write-Host "Reporting on this week!"
-} else {
+}
+else {
     $numberOfWeeks = [int]$userInput
     Write-Host "Reporting on" $numberOfWeeks "week ago..."
     $startDate = $startDate.AddDays(-7 * $numberOfWeeks)
@@ -47,6 +48,7 @@ $response = Invoke-WebRequest -Uri $requestURI -Method Get -Headers $webRequestH
 Write-Host "Response status code:" $response.StatusCode
 
 # Convert the response to JSON
+Write-Host "Now processing results..."
 $responseJSON = ConvertFrom-Json $response.Content
 
 # Get the total time
@@ -64,6 +66,7 @@ Foreach ($project in $responseJSON.data) {
 }
 
 # Load needed assemblies, then create the chart
+Write-Host "Now creating a chart of the processed results..."
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Windows.Forms.DataVisualization
 
@@ -79,7 +82,7 @@ $myChart.BackColor = [System.Drawing.Color]::White
 # Title
 $myChartTitle = New-Object System.Windows.Forms.DataVisualization.Charting.Title
 $myChartTitle.Text = "Weekly Time Report - " + $startDate.ToString("yyyy-MM-dd") + " until " + $endDate.ToString("yyyy-MM-dd")
-$myChartTitle.Font = New-Object System.Drawing.Font @('Microsoft Sans Serif','12', [System.Drawing.FontStyle]::Bold)
+$myChartTitle.Font = New-Object System.Drawing.Font @('Microsoft Sans Serif', '12', [System.Drawing.FontStyle]::Bold)
 $myChart.Titles.Add($myChartTitle)
 
 # Chart area
@@ -92,7 +95,7 @@ $myChartArea.AxisY.Title = "% of my total week's work spent on this project"
 
 # Series
 $mySeriesName = "Series1"
-$myChart.Series.Add($mySeriesName)
+$null = $myChart.Series.Add($mySeriesName)
 $myChart.Series[$mySeriesName].ChartType = "Bar"
 $myChart.Series[$mySeriesName].ChartArea = $myChartAreaName
 $myChart.Series[$mySeriesName].Points.DataBindXY($projectNames, $projectPercentages)
@@ -101,15 +104,19 @@ $myChart.Series[$mySeriesName].Sort([System.Windows.Forms.DataVisualization.Char
 # Save
 $folderPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::Desktop)
 $filePath = "Dan_Lopez_Weekly_Time_" + $startDate.ToString("yyyy-MM-dd") + "_until_" + $endDate.ToString("yyyy-MM-dd") + ".png"
-$myChart.SaveImage($folderPath + "\" + $filePath,"png")
+Write-Host "Now saving the chart to" ($folderPath + "\" + $filePath) "..."
+$myChart.SaveImage($folderPath + "\" + $filePath, "png")
 
 # Add the chart to a form and display the chart
+Write-Host "Now displaying the chart..."
 $AnchorAll = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right -bor
-    [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left
+[System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left
 $myForm = New-Object Windows.Forms.Form
 $myForm.Width = $myChart.Width + 20
 $myForm.Height = $myChart.Height + 50
 $myForm.controls.add($myChart)
 $myChart.Anchor = $AnchorAll
-$myForm.Add_Shown({$myForm.Activate()})
-[void]$myForm.ShowDialog()
+$myForm.Add_Shown( { $myForm.Activate() })
+$null = $myForm.ShowDialog()
+
+Write-Host "Script ended."
