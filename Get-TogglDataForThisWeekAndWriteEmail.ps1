@@ -31,7 +31,7 @@ if (($userInput -eq "0") -or ($userInput -eq "") -or ($null -eq $userInput)) {
 }
 else {
     $numberOfWeeks = [int]$userInput
-    Write-Host "Reporting on" $numberOfWeeks "week ago..."
+    Write-Host "Reporting on" $numberOfWeeks "weeks ago..."
     $startDate = $startDate.AddDays(-7 * $numberOfWeeks)
     $endDate = $startDate.AddDays(7)
 }
@@ -81,7 +81,7 @@ $myChart.BackColor = [System.Drawing.Color]::White
 
 # Title
 $myChartTitle = New-Object System.Windows.Forms.DataVisualization.Charting.Title
-$myChartTitle.Text = "Weekly Time Report - " + $startDate.ToString("yyyy-MM-dd") + " until " + $endDate.ToString("yyyy-MM-dd")
+$myChartTitle.Text = "Dan Lopez Weekly Time Report - " + $startDate.ToString("dddd d MMM yyyy") + " until " + $endDate.ToString("dddd d MMM yyyy")
 $myChartTitle.Font = New-Object System.Drawing.Font @('Microsoft Sans Serif', '12', [System.Drawing.FontStyle]::Bold)
 $myChart.Titles.Add($myChartTitle)
 
