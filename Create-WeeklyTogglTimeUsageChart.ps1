@@ -57,12 +57,20 @@ $totalTimeInMilliseconds = $responseJSON.total_grand
 # Extract the project names and durations
 $projectNames = [System.Collections.ArrayList]@()
 $projectPercentages = [System.Collections.ArrayList]@()
+$projectNamesPercentagesAndHours = [System.Collections.ArrayList]@()
 
 Foreach ($project in $responseJSON.data) {
     $projectName = $project.title.project
     $null = $projectNames.Add($projectName)
     $projectPercentage = $project.totals[7] / $totalTimeInMilliseconds * 100
     $null = $projectPercentages.Add($projectPercentage)
+
+    $projectObject = New-Object System.Object
+
+    $projectObject | Add-Member -type NoteProperty -name Name -Value $projectName
+    $projectObject | Add-Member -type NoteProperty -name "Percent of all time spent on this project" -Value ([math]::Round($projectPercentage, 1))
+    $projectObject | Add-Member -type NoteProperty -name Hours -Value ([math]::Round($project.totals[7] / 1000 / 60 / 60, 1))
+    $null = $projectNamesPercentagesAndHours.Add($projectObject);
 }
 
 # Load needed assemblies, then create the chart
@@ -106,6 +114,11 @@ $folderPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFol
 $filePath = "Dan_Lopez_Weekly_Time_" + $startDate.ToString("yyyy-MM-dd") + "_until_" + $endDate.ToString("yyyy-MM-dd") + ".png"
 Write-Host "Now saving the chart to" ($folderPath + "\" + $filePath) "..."
 $myChart.SaveImage($folderPath + "\" + $filePath, "png")
+
+# Display the data as text
+Write-Host ""
+Write-Host $myChartTitle.Text
+Write-Host ($projectNamesPercentagesAndHours | Format-Table | Out-String)
 
 # Add the chart to a form and display the chart
 Write-Host "Now displaying the chart..."
