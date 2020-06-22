@@ -20,13 +20,18 @@ $TOGGL_WORKSPACE_ID = $togglInfoFileContentsArray[3]
 
 # Allow the user to skip ahead one month
 $userInput = ""
-$userInput = (Read-host -Prompt "Enter 0 (or press ENTER) to report on the current week.`nEnter 1 to report on 1 week ago, 2 to report on 2 weeks ago, etc.")
+$userInput = (Read-host -Prompt "Enter 1 (or press ENTER) to report on the past week.`nEnter 0 to report on the current week, enter 2 to report on 2 weeks ago, etc.")
+
+# Interpret null or empty as 1
+if (($userInput -eq "") -or ($null -eq $userInput)) {
+    $userInput = "1"
+}
 
 # Get the start and end time; initialize them to the start of this week and now
 $startDate = (Get-Date -Hour 0 -Minute 00 -Second 00).AddDays(-1 * (Get-Date).DayOfWeek.value__)
 $endDate = Get-Date
 
-if (($userInput -eq "0") -or ($userInput -eq "") -or ($null -eq $userInput)) {
+if ($userInput -eq "0") {
     Write-Host "Reporting on this week!"
 }
 else {
